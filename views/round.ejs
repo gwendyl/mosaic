@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+
+    <body class="container">
+        <header>
+            <%- include('../partials/header'); %>
+        </header>
+        <main class="form-signin w-100 m-auto">
+            <div class="jumbotron">
+                <h1>In the Round</h1>
+                <form action="sendSettings" method="post">
+                    <div class="form-floating">
+                        <ul>
+                            <li>Starting stitch is outlined with bold border</li>
+                            <li>when two stitches meet at same drop-down location, choose the stitch that looks the best</li>
+                        </ul>
+                        <input type="number" name = "nbrColors" id="nbrColors" required autofocus min="2" max="4" value = "<%= criteria.nbrColors %>">
+                        <label for="nbrColors">Number of Colors</label>
+                        <br>
+                        <input type="number" name = "baseStitches" id="baseStitches" required autofocus min="6" max="10" value = "<%= criteria.baseStitchCount %>">
+                        <label for="baseStitches">Stitches in Round 1</label>
+                        <br>
+                        <input type="number" name = "stitchSize" id="stitchSize" required autofocus min="6" max="20" value = "<%= criteria.stitchSize %>">
+                        <label for="stitchSize">Stitch Size</label>
+                        <br>
+                    </div>
+                    <button class="btn-primary" type="submit" name = "go">Go</button>
+                </form>
+                <canvas id="myCanvas" width="1000" height="1000" style="border:1px solid #000000;"></canvas>
+                <script type="text/javascript" src="script/round.js"></script>
+                <button class="btn-primary" onclick="printCanvas()">Print</button>
+            </div>
+        </main>
+        <footer>
+            <%- include('../partials/footer'); %>
+        </footer>
+
+    </body>
+</html>
