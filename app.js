@@ -6,9 +6,14 @@ const express = require("express");
 const app = express();
 
 let crochetCriteria = {
-    nbrColors: 3,
-    baseStitchCount: 8,
-    stitchSize: 10
+    nbrColors: 2,
+    baseStitchCount: 6,
+    stitchSize: 10,
+    color1:'#9B4F3F',
+    color2: '#FFFFFF',
+    color3: '#D4AF37',
+    color4: '#281E5D'
+  
 };
 
 let nbrColors = 2
@@ -61,6 +66,29 @@ app.post("/sendSettings", function(req,res){
     crochetCriteria.nbrColors = req.body.nbrColors;
     crochetCriteria.stitchSize = req.body.stitchSize;
     crochetCriteria.randomize = req.body.randomize;
-
+    crochetCriteria.color1 = req.body.color1;
+    crochetCriteria.color2 = req.body.color2;
+    crochetCriteria.color3 = req.body.color3;
+    crochetCriteria.color4 = req.body.color4;
     res.redirect("/round");
+})
+
+/**************/
+/* BASIC crochet ROUTE */
+/**************/
+
+app.get("/basic", function(req, res){
+
+    res.render('basic');
+    
+})
+
+/**************/
+/* RESOURCES ROUTE */
+/**************/
+
+app.get("/resources", function(req, res){
+
+    res.render('resources');
+    
 })

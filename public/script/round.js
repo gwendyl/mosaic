@@ -14,6 +14,10 @@ let canvas = document.getElementById('myCanvas');
 let baseStitchQty = document.getElementById('baseStitches').value;
 let nbrColors =  document.getElementById('nbrColors').value;
 let bigR = document.getElementById('stitchSize').value;
+let color1 = document.getElementById('color1').value;
+let color2 = document.getElementById('color2').value;
+let color3 = document.getElementById('color3').value;
+let color4 = document.getElementById('color4').value;
 // bigR = 10;
 
 let randomize = false;
@@ -31,18 +35,17 @@ let showNbrs = false;
 let colors = [];
 switch(nbrColors) {
   case "2":
-    colors = ['#FFFFFF', '#9B4F3F'];
+    colors = [color2, color1];
     break;
   case "3":
-    colors = ['#FFFFFF', '#9B4F3F', '#D4AF37'];
+    colors = [color2, color1, color3];
     break;
   case "4":
-    colors = ['#FFFFFF', '#9B4F3F', '#D4AF37', '#281E5D'];
+    colors = [color2, color1, color3, color4];
     break;
   default:
-    colors = ['#FFFFFF', '#9B4F3F'];
+    colors = [color2, color1];
   }
-
 
 originX = canvas.width / 2;
 originY = canvas.height/2;

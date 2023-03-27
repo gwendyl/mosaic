@@ -11,13 +11,17 @@
         <main class="form-signin w-100 m-auto">
             <div class="jumbotron">
                 <h1>In the Round</h1>
+                <div class="container">
+                    <!-- Content here -->
+                    This is a mosaic-crochet pattern visualization tool.  It is intended for intermediate to advanced crochet artists that are familiar with basic mosaic crochet techniques.  Links to instructional videos can be found on the <a class="nav-link" href="/resources">resources</a> page of this website.
+                    <ul>
+                        <li>I recommend a 6 stitch increase each round for a flat result.</li>
+                        <li>Starting stitch is outlined with bold border</li>
+                        <li>when two stitches meet at same drop-down location, choose the stitch that looks the best</li>
+                    </ul>
+            </div>
                 <form action="sendSettings" method="post">
                     <div class="form-floating">
-                        <ul>
-                            <li>I recommend a 6 stitch increase each round for a flat result.</li>
-                            <li>Starting stitch is outlined with bold border</li>
-                            <li>when two stitches meet at same drop-down location, choose the stitch that looks the best</li>
-                        </ul>
                         <input type="number" name = "nbrColors" id="nbrColors" required autofocus min="2" max="4" value = "<%= criteria.nbrColors %>">
                         <label for="nbrColors">Number of Colors</label>
                         <br>
@@ -26,6 +30,14 @@
                         <br>
                         <input type="number" name = "stitchSize" id="stitchSize" required autofocus min="6" max="20" value = "<%= criteria.stitchSize %>">
                         <label for="stitchSize">Stitch Size</label>
+                        <label for="color1" class="form-label">Color picker</label>
+                        <input type="color" class="form-control form-control-color" name = "color1" id="color1" value="<%= criteria.color1 %>" title="Choose your first color">
+                        <label for="color2" class="form-label">Color picker</label>
+                        <input type="color" class="form-control form-control-color" name = "color2" id="color2" value="<%= criteria.color2 %>" title="Choose your first color">
+                        <label for="color3" class="form-label">Color picker</label>
+                        <input type="color" class="form-control form-control-color" name = "color3" id="color3" value="<%= criteria.color3 %>" title="Choose your first color">
+                        <label for="color4" class="form-label">Color picker</label>
+                        <input type="color" class="form-control form-control-color" name = "color4" id="color4" value="<%= criteria.color4 %>" title="Choose your first color">
                         <br>
                     </div>
                     <button class="btn-primary" type="submit" name = "go">Go</button>
