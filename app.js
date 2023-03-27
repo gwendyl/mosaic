@@ -1,3 +1,7 @@
+let port = process.env.PORT;
+if(port == null || port == "") {
+    port = 3000;
+}
 const express = require("express");
 const app = express();
 
@@ -16,8 +20,8 @@ app.use(express.static("public")); // this tells express where to find all stati
 // set up ejs for use
 app.set('view engine', 'ejs');
 
-app.listen(3000, function (){
-    console.log("server started on port 3000");
+app.listen(port, function (){
+    console.log("server started");
 });
 
 /**************/
