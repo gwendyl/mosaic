@@ -27,7 +27,7 @@ let geoPattern = false;
 const multFactor = 3;
 
 // hard to drop down onto first circle or two
-let startOrbit = 3;  // cant land on orbits 0 or 1
+let startRound = 3;  // cant land on rounds 0 or 1
 
 // show numbers on stitches.  Useful for debugging
 let showNbrs = false;
@@ -53,7 +53,8 @@ let radiusX = bigR * .6;
 let radiusY = bigR;
 
 // compute maxiumum number of stitches that will fit
-let orbits = Math.min(canvas.width / (4*bigR) - 1, canvas.height / (4*bigR) - 1);
+let rndCount = Math.min(canvas.width / (4*bigR) - 1, canvas.height / (4*bigR) - 1);
+let rounds = [];
 let stitches=[];
 
 if(canvas.getContext) 
@@ -70,6 +71,7 @@ if(canvas.getContext)
     createGeoPattern();
   }
   drawAllStitches();
+  writeRoundDetails();
 }
 
 function createRandomPattern() {
@@ -101,11 +103,19 @@ function constructStitches() {
   let id = 0;
   let currColor = 0;
 
-  for(let j=0;j<orbits;j++){
-    let stitchQty = baseStitchQty*(j+1);
-    let theta = (2*Math.PI/stitchQty);
+  for(let j=0;j<rndCount;j++){
+    
+    let currentRound = {
+      id: j,
+      stitchCount: baseStitchQty*(j+1),
+      baseColor: colors[currColor],
+      firstStitchNbr: id
+    }
+    rounds.push(currentRound);
+
+    let theta = (2*Math.PI/currentRound.stitchCount);
     let startingY = originY + 2*radiusY*(j+1);
-    for(let i=0;i<stitchQty; i++){
+    for(let i=0;i<currentRound.stitchCount; i++){
       // coordinates of the center of the ellipse
       // so rotating around a circle that has a radius of (bigR + radiusY)
       //newXCoord = originX + i*(bigR+radiusY)*Math.(theta);
@@ -119,7 +129,7 @@ function constructStitches() {
 
       // determine the lower stitch that it will build upon
       // increment: account for the extra stitch 
-      let nbrOfStitchesFromFirstStitch = id - firstStitchNbr(j) + 1;
+      let nbrOfStitchesFromFirstStitch = id - currentRound.firstStitchNbr + 1;
       let increment = nbrOfStitchesFromFirstStitch * (1/(j+1));
         
       // drop down stitch = current stitch number + the number of stitches around + 
@@ -146,12 +156,12 @@ function constructStitches() {
         endAngle: endAngle,
         id: id,
         currColor: colors[currColor],
-        baseColor: colors[currColor],
-        orbit: j,
+        roundId: j,
         parentStitchId: parentStitchId,
         grandparentStitchId: grandparentStitchId,
         isDropDown: false,
-        isIncrease: isIncrease
+        isIncrease: isIncrease,
+        writtenInstruction: "blsc"
       });
       // prep for next cycle
       id++;
@@ -171,12 +181,23 @@ function getParent(childId) {
   })
   return parentStitchId;
 }
+
+function getBaseColor(roundId) {
+  let baseColor;
+  rounds.forEach(round => {
+    if (round.id == roundId) {
+      baseColor = round.baseColor;
+    }
+  })
+  return baseColor;
+}
+
 function drawAllStitches() {
    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   stitches.forEach(stitch => {
     // draw a little oval behind the stitch to indicate the base color of that round
-    ctx.fillStyle = stitch.baseColor
+    ctx.fillStyle = getBaseColor(stitch.roundId);
     ctx.beginPath();
     ctx.ellipse(stitch.x, stitch.y, stitch.radiusY, stitch.radiusX/2, stitch.theta, stitch.startAngle, stitch.endAngle);
     ctx.stroke();
@@ -253,42 +274,6 @@ function isIntersect(point, stitch) {
     return false;
 }
 
-// canvas.addEventListener('click', (e) => {
-//   const pos = {
-//     x: e.clientX,
-//     y: e.clientY
-//   };
- 
-//   const canvasPos = toCanvasCoords(pos.x, pos.y, 1);
- 
-//   stitches.forEach(stitch => {
-//     if (isIntersect(canvasPos,stitch)) {
-//       // if already a dd, cannot receive a dd
-//       if (stitch.isDropDown) {
-//         console.log('stitch is dropping down.  Cannot also receive dropdown');
-//         return;
-//       }
-      
-
-//       // determine if need to drop down from above
-//       let aboutToDD = false;
-//       if(stitch.currColor == stitch.baseColor) aboutToDD = true;
-
-//       if (markDropDown(stitch, aboutToDD)){
-//         // switch the colors
-//         if (stitch.currColor == stitch.baseColor) {
-//           stitch.currColor = stitch.pulledColor;
-//         } else {
-//           stitch.currColor = stitch.baseColor;
-//         }      
-        
-//         drawAllStitches();
-//       }
-
-//     }
-//    })
-// });
-
 canvas.addEventListener('click', (e) => {
   const pos = {
     x: e.clientX,
@@ -301,6 +286,7 @@ canvas.addEventListener('click', (e) => {
     if (isIntersect(canvasPos,stitch)) {
       attemptDropDown(stitch);
       drawAllStitches();
+      writeRoundDetails();
     }
    })
 });
@@ -308,43 +294,27 @@ canvas.addEventListener('click', (e) => {
 function attemptDropDown(stitch) {
 
         // cannot drop down from first row
-        if(stitch.orbit < startOrbit) {
+        if(stitch.round < startRound) {
           console.log('stitch is in first two rounds.  Cannot dropdown.');
           return;
         }
   
         // cannot dropp down if already dropped upon
-        if(stitch.currColor != stitch.baseColor) {
+        if(stitch.currColor != getBaseColor(stitch.roundId)) {
           console.log('stitch is already dropped upon.  Cannot dropdown.');
           return;
         }
         // if already a dd, clear 
         if (colorLowerStitch(stitch, !stitch.isDropDown)) {
           stitch.isDropDown = !stitch.isDropDown;
+          stitch.writtenInstruction = "dddc"
         };  
 }
-// function markDropDown(sourceStitch, ddBool) {
-//         let success = false;
-//         stitches.forEach(stitch => {
-//           console.log('checking stitch ' + stitch.id + ' to see if on stitch ' + sourceStitch.id);
-//           if (stitch.parentStitchId == sourceStitch.id) {
-//             console.log('  found match');
-//             if (stitch.currColor != stitch.baseColor) {
-//               // cannot drop down from a stitch that is dropped down on
-//               console.log('drop down stitch not available');
-//               success = false;
-//               return success;
-//             }
-//             stitch.isDropDown = ddBool;
-//             success = true;
-//           }
-//         })
-//         return success;
-// }
+
 
 function colorLowerStitch(sourceStitch, ddBool) {
         let success = false;
-        let newColor = sourceStitch.baseColor;
+        let newColor = getBaseColor(sourceStitch.roundId);
         stitches.forEach(stitch => {
           if (stitch.id == sourceStitch.parentStitchId) {
             if (stitch.isDropDown) {
@@ -355,7 +325,7 @@ function colorLowerStitch(sourceStitch, ddBool) {
             }
 
             //cannot be dropped on if already dropped on by another stitch
-            if(ddBool && (stitch.currColor != stitch.baseColor)) {
+            if(ddBool && (stitch.currColor != getBaseColor(stitch.roundId))) {
               console.log('drop down stitch not available because already dropped on');
               success = false;
               return success;
@@ -378,13 +348,13 @@ function toCanvasCoords(pageX, pageY, scale) {
   return pos;
 }
 
-function firstStitchNbr (round){
-  let stitchNbr = 0;
-  for(let i=0; i<round; i++) {
-    stitchNbr += (i+1)*baseStitchQty;
-  }
-  return stitchNbr;
-}
+// function firstStitchNbr (round){
+//   let stitchNbr = 0;
+//   for(let i=0; i<round; i++) {
+//     stitchNbr += (i+1)*baseStitchQty;
+//   }
+//   return stitchNbr;
+// }
 
 function printCanvas()  
 { 
@@ -416,4 +386,69 @@ function lineAtAngle(x1, y1, length, angle, canvas) {
   y2 = y1 + Math.sin(angle ) * length;	   
   canvas.lineTo(x2, y2);       
   canvas.stroke();
+}
+
+function writeRoundDetails(){
+  rounds.forEach(round => {
+    addRoundDetail(round);
+  })
+}
+function addRoundDetail(round){
+  // clear last instructions
+   removeRoundDetail(round);
+
+  // generate instructions
+  let roundInstr = "";
+
+  let currInstr = "";
+  let prevInstr = " ";
+  let instrCount = 0;
+  stitches.forEach(stitch => {
+    // only look at stitches in this round
+    if (stitch.roundId != round.id) {
+      return;
+    }
+
+    // new batch of instructions
+    let currInstr = stitch.writtenInstruction;
+    console.log('curr ' + currInstr + ' prev '+prevInstr);
+    if (currInstr == prevInstr) {
+      // increment the count and move on
+      instrCount++;
+      console.log('  count' + instrCount);
+    } else {
+      // write what we know
+      if (instrCount > 0) roundInstr = roundInstr + ", " + instrCount + " x " + prevInstr;
+      console.log('  ' + roundInstr);
+      // set up for next batch
+      prevInstr = currInstr;
+      instrCount = 1;
+    }
+  })
+  //write the last instruction
+  roundInstr = roundInstr + ", " + instrCount + " x " + prevInstr;
+  //trim off the leading comma
+  roundInstr = roundInstr.substring(2);
+
+  // add intro text
+  roundInstr = "R" + round.id + " (" + round.stitchCount + " stitches): " + roundInstr;
+
+  var ul = document.getElementById("roundsList");
+
+  var li = document.createElement("li");
+  li.setAttribute('id','round'+round.id);
+  li.appendChild(document.createTextNode(roundInstr));
+  ul.appendChild(li);
+}
+
+function removeRoundDetail(round){
+  var ul = document.getElementById("roundsList");
+  console.log('ul:');
+  console.log(ul);
+
+  var li = document.getElementById('round'+round.id);
+  console.log('li:');
+  console.log(li);
+  // ul won't exist first time through the code
+  if(li) ul.removeChild(li);
 }

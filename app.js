@@ -13,7 +13,6 @@ let crochetCriteria = {
     color2: '#FFFFFF',
     color3: '#D4AF37',
     color4: '#281E5D'
-  
 };
 
 let nbrColors = 2
