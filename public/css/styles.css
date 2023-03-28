@@ -1,4 +1,4 @@
-html {
+/* html {
     background-color: #E4E9FD;
     min-height: 1000px;
     font-family: 'helvetica neue';
@@ -85,4 +85,7 @@ html {
     color: rgba(0, 0, 0, 0.5);
     text-align: center;
   }
-  
+   */
+.isHidden {
+  display:none;
+}
