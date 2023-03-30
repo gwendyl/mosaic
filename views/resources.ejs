@@ -4,15 +4,72 @@
         <%- include('../partials/head'); %>
     </head>
 
-    <body class="container">
+    <body>
         <header>
             <%- include('../partials/header'); %>
         </header>
-        <main class="form-signin w-100 m-auto">
-            <div class="jumbotron">
-                <h1>To Be Developed</h1>
+
+
+
+        <div class="container-fluid">
+            <div class="row">
+              <div class="col-12 col-md-2 col-xl-2 bd-sidebar leftBorderContainer">
+                <img class = "img-fluid imageContain" src="images/headshotslice.png">
+              </div>
+              <div class="col accordion" id="accordionExample">
+                
+                <!-- Basic Crochet Techniques -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="basiccrochet">
+                    <button class="accordion-button btn-outline-secondary collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBasic" aria-expanded="false" aria-controls="collapseBasic">
+                      Basic Crochet Techniques
+                    </button>
+                  </h2>
+                  <div id="collapseBasic" class="accordion-collapse collapse show" aria-labelledby="headingBasic" data-bs-parent="#accordionExample">
+                    <div class="accordion-body container-fluid">
+    
+                    <div class="row accordion-row">
+                        <div class="col-12 col-md-2 col-xl-2 robotImageContainer">
+                            <img class="robotImage2" src="images/robothelper.png" alt="Robot Helper">
+                        </div>
+                        <div class="col">
+                            <h4>Basic Crochet Technique videos go here</h4>
+                        </div>
+                    </div>
+    
+                    </div>
+                  </div>
+                </div>
+    
+                <!-- Mosaic Crochet -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingMosaic">
+                    <button class="accordion-button btn-outline-secondary collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMosaic" aria-expanded="false" aria-controls="collapseMosaic">
+                      Mosaic Crochet Techniques
+                    </button>
+                  </h2>
+                  <div id="collapseMosaic" class="accordion-collapse collapse" aria-labelledby="headingMosaic" data-bs-parent="#accordionExample">
+                    <div class="accordion-body container-fluid">
+    
+                        <div class="row  accordion-row">
+                        <div class="col-12 col-md-2 col-xl-2 robotImageContainer">
+                            <img class="robotImage2" src="images/robotJoy.png" alt="Robot Helper">
+                        </div>
+                        <div class="col">
+                            <h4>Mosaic Crochet Techniques </h4>
+                        </div>
+                        </div>
+    
+                    </div>
+                  </div>
+                </div>
+        
             </div>
-        </main>
+    
+          </div>
+
+
+
         <footer>
             <%- include('../partials/footer'); %>
         </footer>

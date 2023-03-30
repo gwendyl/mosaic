@@ -133,6 +133,7 @@ $(document).ready(function () {
       
       let currentRound = {
         id: j,
+        humanId:j+1,
         stitchCount: baseStitchQty*(j+1),
         baseColor: colors[currColor],
         firstStitchNbr: id
@@ -256,6 +257,11 @@ $(document).ready(function () {
         ctx.stroke();  
       }
       
+      let currRound = getRound(stitch);
+      
+      if(stitch.id == currRound.firstStitchNbr) {
+        ctx.strokeText(currRound.humanId, stitch.x, stitch.y);
+      }
       if (showNbrs) ctx.strokeText(stitch.id, stitch.x, stitch.y);
   
       if (stitch.isDropDown) {
@@ -347,7 +353,16 @@ $(document).ready(function () {
           })
           return success;
   }
-  
+
+  function getRound(stitch) {
+    let foundRound;
+
+    rounds.forEach(round => {
+      if (stitch.roundId == round.id)
+      foundRound = round;
+    })
+    return foundRound;
+  }
   
   function toCanvasCoords(pageX, pageY, scale) {
     let rect = canvas.getBoundingClientRect();
@@ -357,14 +372,6 @@ $(document).ready(function () {
     }
     return pos;
   }
-  
-  // function firstStitchNbr (round){
-  //   let stitchNbr = 0;
-  //   for(let i=0; i<round; i++) {
-  //     stitchNbr += (i+1)*baseStitchQty;
-  //   }
-  //   return stitchNbr;
-  // }
   
   function printCanvas()  
   { 
@@ -438,7 +445,7 @@ $(document).ready(function () {
     roundInstr = roundInstr.substring(2);
   
     // add intro text
-    roundInstr = "R" + round.id + " (" + round.stitchCount + " stitches): " + roundInstr;
+    roundInstr = "R" + round.humanId + " (" + round.stitchCount + " stitches): " + roundInstr;
   
     var ul = document.getElementById("roundsList");
   
