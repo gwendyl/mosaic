@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+
+    <body>
+        <header>
+            <%- include('../partials/header'); %>
+        </header>
+        <main>
+            <!------------------------->
+            <!-- Explanatory Header Block-->
+            <!------------------------->
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-normal">Mosaic Crochet</h1>
+                <h2>A mosaic crochet pattern visualization tool.</h2>
+                <p class="lead fw-normal">
+                    Intended for intermediate to advanced crochet artists that are familiar with basic mosaic crochet techniques.  Links to instructional videos can be found on the <a href="/resources">resources</a> page of this website.
+                </p>
+            </div>
+
+            <!------------------------->
+            <!-- Input and Tips Block-->
+            <!------------------------->
+            <div class="container-fluid bg-light">
+                <div class="row p-5 text-center">
+                    <div class="col-md-3">
+                        <form action="sendSettings" method="post">
+                            <div class="mb-3">
+                                <label for="nbrColors">Number of Colors</label>
+                                <input type="number" class = "form-control" name = "nbrColors" id="nbrColors" required autofocus min="2" max="4" value = "<%= criteria.nbrColors %>">
+                                <br>
+                                <label for="baseStitches">Stitches in Foundation Row</label>
+                                <input type="number" class = "form-control" name = "baseStitches" id="baseStitches" required autofocus min="10" max="100" value = "<%= criteria.baseStitchCount %>">
+                                <br>
+                                <label for="rowCount">Number of Rows</label>
+                                <input type="number" class = "form-control" name = "rowCount" id="rowCount" required autofocus min="10" max="100" value = "<%= criteria.rowCount %>">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="color1" class="form-label">First Color</label>
+                                            <input type="color" class="form-control form-control-color" name = "color1" id="color1" value="<%= criteria.color1 %>" title="Choose your first color">
+                                            <label for="color2" class="form-label">Second Color</label>
+                                            <input type="color" class="form-control form-control-color" name = "color2" id="color2" value="<%= criteria.color2 %>" title="Choose your second color">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="color3" class="form-label" id="color3label">Third Color</label>
+                                            <input type="color" class="form-control form-control-color" name = "color3" id="color3" value="<%= criteria.color3 %>" title="Choose your third color">
+                                            <label for="color4" class="form-label" id="color4label">Fourth Color</label>
+                                            <input type="color" class="form-control form-control-color" name = "color4" id="color4" value="<%= criteria.color4 %>" title="Choose your fourth color">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>    
+                            <div>
+                                <button class="btn-outline-primary" type="submit" name = "go">Go</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col">
+                        <ul class="list-group">
+                            <li class="list-group-item">TIPS</li>
+                            <li class="list-group-item">Base color is shown behind the stitch.</li>
+                                </ul>    
+                    </div>
+                </div>
+            </div>
+            <!------------------------->
+            <!-------- CANVAS   ------->
+            <!------------------------->
+            <div class="container-fluid text-center">
+                <div class="row">
+                    <div class="col-12">
+                        <canvas id="myCanvas" width=1000 height=1000 style="border:1px solid #000000;">Sorry, your browser does not support the canvas element.</canvas>
+                    </div>
+                </div>
+            </div>
+            <!------------------------->
+            <!----------Instructions-------->
+            <!------------------------->
+            <div class="container-fluid p-5">
+                <div class="container-fluid bg-light" id="roundsListDiv">
+                    <h2 class="text-center"">Row by Row Instructions</h2>
+                    <ul id="roundsList">
+                    </ul>
+                </div>
+            </div>
+
+            <!------------------------->
+            <!--------- Print -------->
+            <!------------------------->
+            <div class="container-fluid p-5 text-center">
+              <button class="btn-primary" onclick="printCanvas()">Print</button>
+            </div>
+
+            <script type="text/javascript" src="script/rect.js" defer></script>
+        </main>
+        <footer>
+            <%- include('../partials/footer'); %>
+        </footer>
+
+    </body>
+</html>

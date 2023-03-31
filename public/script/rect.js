@@ -1,17 +1,17 @@
-
 $(document).ready(function () {
 
     let canvas = document.getElementById('myCanvas');
     let nbrColorElement = document.getElementById('nbrColors')
     let baseStitchQty = $('#baseStitches').val();
     let nbrColors = nbrColorElement.value;
-    let bigR = $('#stitchSize').val();
+    let rowCount = $('#rowCount').val();
     let color1 = document.getElementById('color1').value;
     let color2 = document.getElementById('color2').value;
     let color3 = document.getElementById('color3').value;
     let color4 = document.getElementById('color4').value;
-    // bigR = 10;
 
+    let stitchWidth = canvas.width / baseStitchQty;
+    let stitchHeight = canvas.height / rowCount;
 
     let randomize = false;
     const randomThreshold = .5;
@@ -19,8 +19,8 @@ $(document).ready(function () {
     let geoPattern = false;
     const multFactor = 3;
 
-    // hard to drop down onto first circle or two
-    let startRound = 3;  // cant land on rounds 0 or 1
+    // hard to drop down onto first row or two
+    let startRow = 3;  // cant land on rows 0 or 1
 
     // show numbers on stitches.  Useful for debugging
     let showNbrs = false;
@@ -40,30 +40,28 @@ $(document).ready(function () {
             colors = [color2, color1];
     }
 
-    originX = canvas.width / 2;
-    originY = canvas.height / 2;
-    let radiusX = bigR * .6;
-    let radiusY = bigR;
-
+    // start in lower left corner
+    originX = 0;
+    originY = canvas.height;
+  
     // compute maxiumum number of stitches that will fit
-    let rndCount = Math.min(canvas.width / (4 * bigR) - 1, canvas.height / (4 * bigR) - 1);
-    let rounds = [];
+    let rows = [];
     let stitches = [];
 
     if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
-        drawStartingCircle();
         constructStitches();
+        drawChain();
 
-        if (randomize) {
-            createRandomPattern();
-        }
+      //  if (randomize) {
+      //      createRandomPattern();
+      //  }
 
-        if (geoPattern) {
-            createGeoPattern();
-        }
-        drawAllStitches();
-        writeRoundDetails();
+      //  if (geoPattern) {
+      //      createGeoPattern();
+      //  }
+      //  drawAllStitches();
+      //  writeRowDetails();
     }
 
     nbrColorElement.addEventListener('change', (e) => {
@@ -111,71 +109,47 @@ $(document).ready(function () {
 
 
         // constant for all stitches
-        let startAngle = 0;
-        let endAngle = 2 * Math.PI;
-        let startingX = originX;
         let id = 0;
         let currColor = 0;
+        console.log('stitchw ' + stitchWidth);
+        console.log('stitchH ' + stitchHeight);
+        for (let j = 0; j < rowCount; j++) {
 
-        for (let j = 0; j < rndCount; j++) {
-
-            let currentRound = {
+            let currentRow = {
                 id: j,
                 humanId: j + 1,
-                stitchCount: baseStitchQty * (j + 1),
                 baseColor: colors[currColor],
-                firstStitchNbr: id
             }
-            rounds.push(currentRound);
+            rows.push(currentRow);
 
-            let theta = (2 * Math.PI / currentRound.stitchCount);
-            let startingY = originY + 2 * radiusY * (j + 1);
-            for (let i = 0; i < currentRound.stitchCount; i++) {
-                // coordinates of the center of the ellipse
-                // so rotating around a circle that has a radius of (bigR + radiusY)
-                //newXCoord = originX + i*(bigR+radiusY)*Math.(theta);
-                //newYCoord = originY + 2*radiusY + i*(bigR+radiusY)*Math.cos(theta);
+            let currentY = ctx.height - (j * stitchHeight);
 
+            for (let i = 0; i < baseStitchQty; i++) {
 
-
-                let newX = Math.cos(i * theta) * (startingX - originX) - Math.sin(i * theta) * (startingY - originY) + originX;
-                let newY = Math.sin(i * theta) * (startingX - originX) + Math.cos(i * theta) * (startingY - originY) + originY;
-
+                let currentX = i * stitchWidth;
 
                 // determine the lower stitch that it will build upon
                 // increment: account for the extra stitch 
-                let nbrOfStitchesFromFirstStitch = id - currentRound.firstStitchNbr + 1;
-                let increment = nbrOfStitchesFromFirstStitch * (1 / (j + 1));
+//                let nbrOfStitchesFromFirstStitch = id - currentRound.firstStitchNbr + 1;
+//                let increment = nbrOfStitchesFromFirstStitch * (1 / (j + 1));
 
                 // drop down stitch = current stitch number + the number of stitches around + 
                 // the incremental amount to increase the stitch count for the next row
-                var parentStitchId;
-                let rawStitchNbr = id - j * baseStitchQty - increment;
-                if (j > 0) parentStitchId = Math.round(rawStitchNbr);
-
-
-                let isIncrease = false;
-                if (Math.floor(rawStitchNbr) == rawStitchNbr) isIncrease = true;
+           
 
                 // find the 'grandmother' of the stitch.  this is the stitch that this stitch would drop down to
                 // we just found the parentStitchId, which is this stitch's mother.  So just need to get the parentStitchId of the parentStitchId.
-                let grandparentStitchId = getParent(parentStitchId);
+                let grandparentStitchId = id - 2 * baseStitchQty;
 
                 stitches.push({
-                    x: newX,
-                    y: newY,
-                    radiusX: radiusX,
-                    radiusY: radiusY,
-                    theta: theta * i,
-                    startAngle: startAngle,
-                    endAngle: endAngle,
+                    x: currentX,
+                    y: currentY,
                     id: id,
                     currColor: colors[currColor],
-                    roundId: j,
-                    parentStitchId: parentStitchId,
-                    grandparentStitchId: grandparentStitchId,
+                    rowId: j,
+                    parentStitchId: getParent(id),
+                    grandparentStitchId: getParent(getParent(id)),
                     isDropDown: false,
-                    isIncrease: isIncrease,
                     writtenInstruction: "blsc"
                 });
                 // prep for next cycle
@@ -188,20 +162,16 @@ $(document).ready(function () {
     }
 
     function getParent(childId) {
-        let parentStitchId;
-        stitches.forEach(stitch => {
-            if (stitch.id == childId) {
-                parentStitchId = stitch.parentStitchId;
-            }
-        })
-        return parentStitchId;
+        let parentId = childId - baseStitchQty;
+        if (parentId < 0) parentId = null;
+        return parentId;
     }
 
-    function getBaseColor(roundId) {
+    function getBaseColor(rowId) {
         let baseColor;
-        rounds.forEach(round => {
-            if (round.id == roundId) {
-                baseColor = round.baseColor;
+        rows.forEach(row => {
+            if (row.id == rowId) {
+                baseColor = row.baseColor;
             }
         })
         return baseColor;
@@ -212,11 +182,11 @@ $(document).ready(function () {
 
         stitches.forEach(stitch => {
             // draw a little oval behind the stitch to indicate the base color of that round
-            ctx.fillStyle = getBaseColor(stitch.roundId);
-            ctx.beginPath();
-            ctx.ellipse(stitch.x, stitch.y, stitch.radiusY, stitch.radiusX / 2, stitch.theta, stitch.startAngle, stitch.endAngle);
-            ctx.stroke();
-            ctx.fill();
+            //ctx.fillStyle = getBaseColor(stitch.roundId);
+            //ctx.beginPath();
+            //ctx.rect(stitch.x, stitch.y, stitchWidth, stitchHeight/2);
+            //ctx.stroke();
+            //ctx.fill();
 
             ctx.fillStyle = stitch.currColor;
 
@@ -228,7 +198,7 @@ $(document).ready(function () {
 
             // x and y parameters describe the middle of the ellipse
             ctx.beginPath();
-            ctx.ellipse(stitch.x, stitch.y, stitch.radiusX, stitch.radiusY, stitch.theta, stitch.startAngle, stitch.endAngle);
+            ctx.rect(stitch.x, stitch.y, stitchWidth, stitchHeight);
             ctx.stroke();
             ctx.fill();
 
@@ -245,11 +215,11 @@ $(document).ready(function () {
                 ctx.stroke();
             }
 
-            let currRound = getRound(stitch);
+            let currRow = getRow(stitch);
 
-            if (stitch.id == currRound.firstStitchNbr) {
-                ctx.strokeText(currRound.humanId, stitch.x, stitch.y);
-            }
+ //           if (stitch.id == currRow.firstStitchNbr) {
+ //               ctx.strokeText(currRound.humanId, stitch.x, stitch.y);
+ //           }
             if (showNbrs) ctx.strokeText(stitch.id, stitch.x, stitch.y);
 
             if (stitch.isDropDown) {
@@ -274,15 +244,23 @@ $(document).ready(function () {
         return pos;
     };
 
-    function drawStartingCircle() {
+    function drawChain() {
         let c = document.getElementById("myCanvas");
         let ctx = c.getContext("2d");
 
         ctx.fillStyle = "rgba(255, 255, 255, 0.125)";
 
-        ctx.beginPath();
-        ctx.ellipse(originX, originY, bigR, bigR, 0, 0, 2 * Math.PI);
-        ctx.stroke();
+        console.log('drawing chain');
+        for (let i = 0; i < baseStitchQty; i++) {
+            ctx.beginPath();
+            console.log(i * stitchWidth);
+            console.log(ctx.Height - stitchHeight);
+            console.log(stitchWidth);
+            console.log(stitchHeight);
+            ctx.rect(i * stitchWidth, ctx.Height - stitchHeight, stitchWidth, stitchHeight);
+            ctx.stroke();
+        }
+
 
 
     }
@@ -342,14 +320,14 @@ $(document).ready(function () {
         return success;
     }
 
-    function getRound(stitch) {
-        let foundRound;
+    function getRow(stitch) {
+        let foundRow;
 
-        rounds.forEach(round => {
-            if (stitch.roundId == round.id)
-                foundRound = round;
+        rows.forEach(row => {
+            if (stitch.rowId == row.id)
+                foundRow = row;
         })
-        return foundRound;
+        return foundRow;
     }
 
     function toCanvasCoords(pageX, pageY, scale) {
@@ -384,6 +362,7 @@ $(document).ready(function () {
         }, true);
     }
 
+    /*
     function lineAtAngle(x1, y1, length, angle, canvas) {
         canvas.moveTo(x1, y1);
         x2 = x1 + Math.cos(angle) * length;
@@ -391,25 +370,26 @@ $(document).ready(function () {
         canvas.lineTo(x2, y2);
         canvas.stroke();
     }
+    */
 
-    function writeRoundDetails() {
-        rounds.forEach(round => {
-            addRoundDetail(round);
+    function writeRowDetails() {
+        rows.forEach(row => {
+            addRowDetail(row);
         })
     }
-    function addRoundDetail(round) {
+    function addRowDetail(row) {
         // clear last instructions
-        removeRoundDetail(round);
+        removeRowDetail(row);
 
         // generate instructions
-        let roundInstr = "";
+        let rowInstr = "";
 
         let currInstr = "";
         let prevInstr = " ";
         let instrCount = 0;
         stitches.forEach(stitch => {
             // only look at stitches in this round
-            if (stitch.roundId != round.id) {
+            if (stitch.rowId != row.id) {
                 return;
             }
 
@@ -420,7 +400,7 @@ $(document).ready(function () {
                 instrCount++;
             } else {
                 // write what we know
-                if (instrCount > 0) roundInstr = roundInstr + ", " + instrCount + " x " + prevInstr;
+                if (instrCount > 0) rowInstr = rowInstr + ", " + instrCount + " x " + prevInstr;
                 // set up for next batch
                 prevInstr = currInstr;
                 instrCount = 1;
@@ -428,35 +408,35 @@ $(document).ready(function () {
         })
 
         //write the last instruction
-        roundInstr = roundInstr + ", " + instrCount + " x " + prevInstr;
+        rowInstr = rowInstr + ", " + instrCount + " x " + prevInstr;
         //trim off the leading comma
-        roundInstr = roundInstr.substring(2);
+        rowInstr = rowInstr.substring(2);
 
         // add intro text
-        roundInstr = "R" + round.humanId + " (" + round.stitchCount + " stitches): " + roundInstr;
+        rowInstr = "R" + row.humanId + " (" + row.stitchCount + " stitches): " + rowInstr;
 
         // build instruction row as: row 
         // figure out color div definition
         var colorDiv = document.createElement('div');
         colorDiv.className = 'box inline';
         colorDiv.style.backgroundColor = round.baseColor;
-        
 
-        var ul = document.getElementById("roundsList");
+
+        var ul = document.getElementById("rowsList");
 
         var li = document.createElement("li");
-        let roundId = 'round' + round.id;
-        li.setAttribute('id', roundId);
+        let roundId = 'row' + row.id;
+        li.setAttribute('id', rowId);
         li.appendChild(colorDiv);
-        li.appendChild(document.createTextNode(roundInstr));
+        li.appendChild(document.createTextNode(rowInstr));
         ul.appendChild(li);
 
-        $('#' + roundId).addClass('list-group-item');
+        $('#' + rowId).addClass('list-group-item');
     }
 
-    function removeRoundDetail(round) {
-        var ul = document.getElementById("roundsList");
-        var li = document.getElementById('round' + round.id);
+    function removeRowDetail(row) {
+        var ul = document.getElementById("rowsList");
+        var li = document.getElementById('row' + row.id);
         // ul won't exist first time through the code
         if (li) ul.removeChild(li);
     }
