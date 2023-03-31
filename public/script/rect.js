@@ -4,15 +4,24 @@ $(document).ready(function () {
     let nbrColorElement = document.getElementById('nbrColors')
     let baseStitchQty = $('#baseStitches').val();
     let nbrColors = nbrColorElement.value;
-    let rowCount = $('#rowCount').val();
+    let rowCount = Number($('#rowCount').val());
     let color1 = document.getElementById('color1').value;
     let color2 = document.getElementById('color2').value;
     let color3 = document.getElementById('color3').value;
     let color4 = document.getElementById('color4').value;
 
     let stitchWidth = canvas.width / baseStitchQty;
-    let stitchHeight = canvas.height / rowCount;
+    let stitchHeight = canvas.height / (rowCount + 1);// remember to leave space for foundation row
+    // make square
+    if (stitchHeight > stitchWidth) stitchHeight=stitchWidth;
+    if (stitchWidth > stitchHeight) stitchWidth = stitchHeight;
 
+    // add a black border
+    let borderColor = "#000000"
+    let borderWidth = Math.round(.05 * stitchHeight);
+    if (borderWidth < 2) borderWidth = 3;
+
+    console.log(stitchHeight);
     let randomize = false;
     const randomThreshold = .5;
 
@@ -51,7 +60,6 @@ $(document).ready(function () {
     if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
         constructStitches();
-        drawChain();
 
       //  if (randomize) {
       //      createRandomPattern();
@@ -60,7 +68,9 @@ $(document).ready(function () {
       //  if (geoPattern) {
       //      createGeoPattern();
       //  }
-      //  drawAllStitches();
+        drawAllStitches();
+        drawChain();
+
       //  writeRowDetails();
     }
 
@@ -74,9 +84,10 @@ $(document).ready(function () {
             x: e.clientX,
             y: e.clientY
         };
-
+        console.log(pos);
         const canvasPos = toCanvasCoords(pos.x, pos.y, 1);
 
+        console.log(canvasPos);
         stitches.forEach(stitch => {
             if (isIntersect(canvasPos, stitch)) {
                 attemptDropDown(stitch);
@@ -111,8 +122,6 @@ $(document).ready(function () {
         // constant for all stitches
         let id = 0;
         let currColor = 0;
-        console.log('stitchw ' + stitchWidth);
-        console.log('stitchH ' + stitchHeight);
         for (let j = 0; j < rowCount; j++) {
 
             let currentRow = {
@@ -122,8 +131,11 @@ $(document).ready(function () {
             }
             rows.push(currentRow);
 
-            let currentY = ctx.height - (j * stitchHeight);
-
+            let currentY = canvas.height - ((j+1) * stitchHeight) - stitchHeight; // leave space for foundation chain row
+            console.log('setting Y: ' + currentY);
+            console.log('  canvas.height: ' + canvas.height);
+            console.log('  j * stitcheight: ' + (j+1)*stitchHeight);
+            console.log('  stitchHeigth: ' + stitchHeight);
             for (let i = 0; i < baseStitchQty; i++) {
 
                 let currentX = i * stitchWidth;
@@ -188,7 +200,7 @@ $(document).ready(function () {
             //ctx.stroke();
             //ctx.fill();
 
-            ctx.fillStyle = stitch.currColor;
+            console.log(stitch);
 
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -196,10 +208,16 @@ $(document).ready(function () {
             ctx.lineWidth = 1;
             if (stitch.isIncrease) ctx.lineWidth = 8;
 
+            // background color
+            ctx.beginPath();
+            ctx.fillStyle = borderColor;
+            ctx.fillRect(stitch.x, stitch.y, stitchWidth, stitchHeight);
+            ctx.fill();
+
             // x and y parameters describe the middle of the ellipse
             ctx.beginPath();
-            ctx.rect(stitch.x, stitch.y, stitchWidth, stitchHeight);
-            ctx.stroke();
+            ctx.fillStyle = stitch.currColor;
+            ctx.fillRect(stitch.x + borderWidth, stitch.y - borderWidth, stitchWidth - 2*borderWidth, stitchHeight - 2*borderWidth);
             ctx.fill();
 
             ctx.lineWidth = 1;
@@ -248,16 +266,11 @@ $(document).ready(function () {
         let c = document.getElementById("myCanvas");
         let ctx = c.getContext("2d");
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.125)";
+        ctx.fillStyle = "rgba(155, 155, 155, 0.125)";
 
-        console.log('drawing chain');
         for (let i = 0; i < baseStitchQty; i++) {
             ctx.beginPath();
-            console.log(i * stitchWidth);
-            console.log(ctx.Height - stitchHeight);
-            console.log(stitchWidth);
-            console.log(stitchHeight);
-            ctx.rect(i * stitchWidth, ctx.Height - stitchHeight, stitchWidth, stitchHeight);
+            ctx.rect(i * stitchWidth + borderWidth, canvas.height - stitchHeight - borderWidth, stitchWidth-2*borderWidth, stitchHeight- 2*borderWidth);
             ctx.stroke();
         }
 
