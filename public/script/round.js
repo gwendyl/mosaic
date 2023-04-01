@@ -53,6 +53,7 @@ $(document).ready(function () {
     if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
         drawStartingCircle();
+        renderColorPickers();
         constructStitches();
 
         if (randomize) {

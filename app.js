@@ -92,7 +92,7 @@ app.get("/rect", function(req, res){
 })
 
 
-app.post("/sendSettings", function (req, res) {
+app.post("/sendRectSettings", function (req, res) {
 
     rectCriteria.baseStitchCount = req.body.baseStitches;
     rectCriteria.nbrColors = req.body.nbrColors;

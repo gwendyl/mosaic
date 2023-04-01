@@ -26,7 +26,7 @@
             <div class="container-fluid bg-light">
                 <div class="row p-5 text-center">
                     <div class="col-md-3">
-                        <form action="sendSettings" method="post">
+                        <form action="sendRectSettings" method="post">
                             <div class="mb-3">
                                 <label for="nbrColors">Number of Colors</label>
                                 <input type="number" class = "form-control" name = "nbrColors" id="nbrColors" required autofocus min="2" max="4" value = "<%= criteria.nbrColors %>">
@@ -39,16 +39,16 @@
                                 <div class="container-fluid">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <label for="color1" class="form-label">First Color</label>
-                                            <input type="color" class="form-control form-control-color" name = "color1" id="color1" value="<%= criteria.color1 %>" title="Choose your first color">
-                                            <label for="color2" class="form-label">Second Color</label>
-                                            <input type="color" class="form-control form-control-color" name = "color2" id="color2" value="<%= criteria.color2 %>" title="Choose your second color">
+                                            <label for="color1" class="form-label ">First Color</label>
+                                            <input type="color" class="form-control form-control-color " name = "color1" id="color1" value="<%= criteria.color1 %>" title="Choose your first color">
+                                            <label for="color2" class="form-label ">Second Color</label>
+                                            <input type="color" class="form-control form-control-color " name = "color2" id="color2" value="<%= criteria.color2 %>" title="Choose your second color">
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="color3" class="form-label" id="color3label">Third Color</label>
-                                            <input type="color" class="form-control form-control-color" name = "color3" id="color3" value="<%= criteria.color3 %>" title="Choose your third color">
-                                            <label for="color4" class="form-label" id="color4label">Fourth Color</label>
-                                            <input type="color" class="form-control form-control-color" name = "color4" id="color4" value="<%= criteria.color4 %>" title="Choose your fourth color">
+                                            <label for="color3" class="form-label isHidden" id="color3label">Third Color</label>
+                                            <input type="color" class="form-control form-control-color isHidden" name = "color3" id="color3" value="<%= criteria.color3 %>" title="Choose your third color">
+                                            <label for="color4" class="form-label isHidden" id="color4label">Fourth Color</label>
+                                            <input type="color" class="form-control form-control-color isHidden" name = "color4" id="color4" value="<%= criteria.color4 %>" title="Choose your fourth color">
                                         </div>
                                     </div>
                                 </div>
@@ -80,9 +80,9 @@
             <!----------Instructions-------->
             <!------------------------->
             <div class="container-fluid p-5">
-                <div class="container-fluid bg-light" id="roundsListDiv">
+                <div class="container-fluid bg-light" id="rowsListDiv">
                     <h2 class="text-center"">Row by Row Instructions</h2>
-                    <ul id="roundsList">
+                    <ul id="rowsList">
                     </ul>
                 </div>
             </div>
