@@ -21,7 +21,7 @@ $(document).ready(function () {
     let borderWidth = Math.round(.05 * stitchHeight);
     if (borderWidth < 2) borderWidth = 3;
 
-    let randomize = true;
+    let randomize = false;
     const randomThreshold = .5;
 
     let geoPattern = false;
@@ -60,19 +60,19 @@ $(document).ready(function () {
         var ctx = canvas.getContext('2d');
         renderColorPickers();
         constructStitches();
-        
-        if (geoPattern) {
-            createGeoPattern();
-        }
-        
-      if (randomize) {
-       createRandomPattern();
-      }
+        console.log(stitches);
 
+      //  if (randomize) {
+      //      createRandomPattern();
+      //  }
+
+      //  if (geoPattern) {
+      //      createGeoPattern();
+      //  }
         drawAllStitches();
         drawChain();
 
-      //  writeRowDetails();
+        writeRowDetails();
     }
 
     nbrColorElement.addEventListener('change', (e) => {
@@ -100,7 +100,7 @@ $(document).ready(function () {
 
     function createRandomPattern() {
         stitches.forEach(stitch => {
-            if (Math.random() < randomThreshold) {
+            if (Math.random() < randomThreshold) { 
                 attemptDropDown(stitch);
             }
         })
@@ -276,6 +276,7 @@ $(document).ready(function () {
     function isIntersect(point, stitch) {
         if (stitch.x < point.x && point.x < stitch.x + stitchWidth && stitch.y < point.y && point.y < stitch.y + stitchHeight) 
             return true;
+        }
         else
             return false;
     }
@@ -283,15 +284,20 @@ $(document).ready(function () {
 
     function attemptDropDown(stitch) {
 
+        console.log('attempting drop down');
+        console.log('stitch.id: ' + stitch.id);
+        console.log('stitch.rowId: ' + stitch.rowId);
+        console.log('stitch.currColor: ' + stitch.currColor);
+        console.log(' base color ' + getBaseColor(stitch.rowId));
+        console.log('isdd: ' + stitch.isDropDown);
+
         // cannot drop down from first row
-        console.log(' if ' + stitch.rowId + ' < ' + startRow);
         if (stitch.rowId < startRow) {
             console.log('stitch is in first two rows.  Cannot dropdown.');
             return;
         }
 
         // cannot dropp down if already dropped upon
-        console.log(' if ' + stitch.currColor + ' != ' + getBaseColor(stitch.rowId));
         if (stitch.currColor != getBaseColor(stitch.rowId)) {
             console.log('stitch is already dropped upon.  Cannot dropdown.');
             return;
@@ -314,7 +320,6 @@ $(document).ready(function () {
         console.log('  ddbool: ' + ddBool);
         let success = false;
         let newColor = getBaseColor(sourceStitch.rowId);
-        console.log('  new color: ' + newColor);
         stitches.forEach(stitch => {
             if (stitch.id == sourceStitch.parentStitchId) {
                 console.log('    found parent stitch: ' + stitch.id);
@@ -326,6 +331,7 @@ $(document).ready(function () {
                 }
 
                 //cannot be dropped on if already dropped on by another stitch
+                if (ddBool && (stitch.currColor != getBaseColor(stitch.rowId))) {
                 if (ddBool && (stitch.currColor != getBaseColor(stitch.rowId))) {
                     console.log('drop down stitch not available because already dropped on');
                     success = false;
@@ -409,7 +415,7 @@ $(document).ready(function () {
         let prevInstr = " ";
         let instrCount = 0;
         stitches.forEach(stitch => {
-            // only look at stitches in this round
+            // only look at stitches in this row
             if (stitch.rowId != row.id) {
                 return;
             }
@@ -434,18 +440,20 @@ $(document).ready(function () {
         rowInstr = rowInstr.substring(2);
 
         // add intro text
-        rowInstr = "R" + row.humanId + " (" + row.stitchCount + " stitches): " + rowInstr;
+        rowInstr = "R" + row.humanId + ": " + rowInstr;
 
         // build instruction row as: row 
         // figure out color div definition
         var colorDiv = document.createElement('div');
         colorDiv.className = 'box inline';
         colorDiv.style.backgroundColor = row.baseColor;
+        colorDiv.style.backgroundColor = row.baseColor;
 
 
         var ul = document.getElementById("rowsList");
 
         var li = document.createElement("li");
+        let rowId = 'row' + row.id;
         let rowId = 'row' + row.id;
         li.setAttribute('id', rowId);
         li.appendChild(colorDiv);
@@ -474,7 +482,6 @@ $(document).ready(function () {
         // color 1 always rendered
         // color 2 always rendered
 
-        console.log('current nbr colors: ' + nbrColorElement)
         if (nbrColorElement.value < 3) {
             $('#color3').addClass('isHidden');
             $('#color3label').addClass('isHidden');
