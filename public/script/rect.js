@@ -276,7 +276,6 @@ $(document).ready(function () {
     function isIntersect(point, stitch) {
         if (stitch.x < point.x && point.x < stitch.x + stitchWidth && stitch.y < point.y && point.y < stitch.y + stitchHeight) 
             return true;
-        }
         else
             return false;
     }
@@ -332,7 +331,6 @@ $(document).ready(function () {
 
                 //cannot be dropped on if already dropped on by another stitch
                 if (ddBool && (stitch.currColor != getBaseColor(stitch.rowId))) {
-                if (ddBool && (stitch.currColor != getBaseColor(stitch.rowId))) {
                     console.log('drop down stitch not available because already dropped on');
                     success = false;
                     return success;
@@ -342,7 +340,7 @@ $(document).ready(function () {
                 console.log('    set parent stitch color to: ' + stitch.currColor);
                 success = true;
             }
-        })
+        });
         return success;
     }
 
@@ -453,7 +451,6 @@ $(document).ready(function () {
         var ul = document.getElementById("rowsList");
 
         var li = document.createElement("li");
-        let rowId = 'row' + row.id;
         let rowId = 'row' + row.id;
         li.setAttribute('id', rowId);
         li.appendChild(colorDiv);
