@@ -21,7 +21,6 @@ $(document).ready(function () {
     let borderWidth = Math.round(.05 * stitchHeight);
     if (borderWidth < 2) borderWidth = 3;
 
-    console.log(stitchHeight);
     let randomize = false;
     const randomThreshold = .5;
 
@@ -32,7 +31,7 @@ $(document).ready(function () {
     let startRow = 3;  // cant land on rows 0 or 1
 
     // show numbers on stitches.  Useful for debugging
-    let showNbrs = false;
+    let showNbrs = true;
 
     let colors = [];
     switch (nbrColors) {
@@ -60,6 +59,7 @@ $(document).ready(function () {
     if (canvas.getContext) {
         var ctx = canvas.getContext('2d');
         constructStitches();
+        console.log(stitches);
 
       //  if (randomize) {
       //      createRandomPattern();
@@ -71,11 +71,10 @@ $(document).ready(function () {
         drawAllStitches();
         drawChain();
 
-      //  writeRowDetails();
+        writeRowDetails();
     }
 
     nbrColorElement.addEventListener('change', (e) => {
-        console.log('changed');
         renderColorPickers();
     });
 
@@ -84,22 +83,22 @@ $(document).ready(function () {
             x: e.clientX,
             y: e.clientY
         };
-        console.log(pos);
         const canvasPos = toCanvasCoords(pos.x, pos.y, 1);
 
-        console.log(canvasPos);
+        console.log("clicked: " + canvasPos.x + " " + canvasPos.y);
         stitches.forEach(stitch => {
             if (isIntersect(canvasPos, stitch)) {
+                console.log('found stitch ' + stitch.id)
                 attemptDropDown(stitch);
                 drawAllStitches();
-                writeRoundDetails();
+                writeRowDetails();
             }
         })
     });
 
     function createRandomPattern() {
         stitches.forEach(stitch => {
-            if (Math.random() < randomThreshold) {
+            if (Math.random() < randomThreshold) { 
                 attemptDropDown(stitch);
             }
         })
@@ -132,10 +131,6 @@ $(document).ready(function () {
             rows.push(currentRow);
 
             let currentY = canvas.height - ((j+1) * stitchHeight) - stitchHeight; // leave space for foundation chain row
-            console.log('setting Y: ' + currentY);
-            console.log('  canvas.height: ' + canvas.height);
-            console.log('  j * stitcheight: ' + (j+1)*stitchHeight);
-            console.log('  stitchHeigth: ' + stitchHeight);
             for (let i = 0; i < baseStitchQty; i++) {
 
                 let currentX = i * stitchWidth;
@@ -200,8 +195,6 @@ $(document).ready(function () {
             //ctx.stroke();
             //ctx.fill();
 
-            console.log(stitch);
-
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
@@ -238,7 +231,7 @@ $(document).ready(function () {
  //           if (stitch.id == currRow.firstStitchNbr) {
  //               ctx.strokeText(currRound.humanId, stitch.x, stitch.y);
  //           }
-            if (showNbrs) ctx.strokeText(stitch.id, stitch.x, stitch.y);
+            if (showNbrs) ctx.strokeText(stitch.id, stitch.x+ (stitchWidth/2), stitch.y + (stitchHeight/2));
 
             if (stitch.isDropDown) {
                 ctx.strokeText('X', stitch.x, stitch.y);
@@ -279,8 +272,9 @@ $(document).ready(function () {
     }
 
     function isIntersect(point, stitch) {
-        if (Math.pow(point.x - stitch.x, 2) / Math.pow(stitch.radiusX, 2) + Math.pow(point.y - stitch.y, 2) / Math.pow(stitch.radiusY, 2) < 1)
+        if (stitch.x < point.x && point.x < stitch.x + stitchWidth && stitch.y < point.y && point.y < stitch.y + stitchHeight) {
             return true;
+        }
         else
             return false;
     }
@@ -288,14 +282,21 @@ $(document).ready(function () {
 
     function attemptDropDown(stitch) {
 
+        console.log('attempting drop down');
+        console.log('stitch.id: ' + stitch.id);
+        console.log('stitch.rowId: ' + stitch.rowId);
+        console.log('stitch.currColor: ' + stitch.currColor);
+        console.log(' base color ' + getBaseColor(stitch.rowId));
+        console.log('isdd: ' + stitch.isDropDown);
+
         // cannot drop down from first row
-        if (stitch.round < startRound) {
-            console.log('stitch is in first two rounds.  Cannot dropdown.');
+        if (stitch.rowId < startRow) {
+            console.log('stitch is in first two rows.  Cannot dropdown.');
             return;
         }
 
         // cannot dropp down if already dropped upon
-        if (stitch.currColor != getBaseColor(stitch.roundId)) {
+        if (stitch.currColor != getBaseColor(stitch.rowId)) {
             console.log('stitch is already dropped upon.  Cannot dropdown.');
             return;
         }
@@ -309,7 +310,7 @@ $(document).ready(function () {
 
     function colorLowerStitch(sourceStitch, ddBool) {
         let success = false;
-        let newColor = getBaseColor(sourceStitch.roundId);
+        let newColor = getBaseColor(sourceStitch.rowId);
         stitches.forEach(stitch => {
             if (stitch.id == sourceStitch.parentStitchId) {
                 if (stitch.isDropDown) {
@@ -320,7 +321,7 @@ $(document).ready(function () {
                 }
 
                 //cannot be dropped on if already dropped on by another stitch
-                if (ddBool && (stitch.currColor != getBaseColor(stitch.roundId))) {
+                if (ddBool && (stitch.currColor != getBaseColor(stitch.rowId))) {
                     console.log('drop down stitch not available because already dropped on');
                     success = false;
                     return success;
@@ -401,7 +402,7 @@ $(document).ready(function () {
         let prevInstr = " ";
         let instrCount = 0;
         stitches.forEach(stitch => {
-            // only look at stitches in this round
+            // only look at stitches in this row
             if (stitch.rowId != row.id) {
                 return;
             }
@@ -426,19 +427,19 @@ $(document).ready(function () {
         rowInstr = rowInstr.substring(2);
 
         // add intro text
-        rowInstr = "R" + row.humanId + " (" + row.stitchCount + " stitches): " + rowInstr;
+        rowInstr = "R" + row.humanId + ": " + rowInstr;
 
         // build instruction row as: row 
         // figure out color div definition
         var colorDiv = document.createElement('div');
         colorDiv.className = 'box inline';
-        colorDiv.style.backgroundColor = round.baseColor;
+        colorDiv.style.backgroundColor = row.baseColor;
 
 
         var ul = document.getElementById("rowsList");
 
         var li = document.createElement("li");
-        let roundId = 'row' + row.id;
+        let rowId = 'row' + row.id;
         li.setAttribute('id', rowId);
         li.appendChild(colorDiv);
         li.appendChild(document.createTextNode(rowInstr));
@@ -465,7 +466,6 @@ $(document).ready(function () {
         // color 1 always rendered
         // color 2 always rendered
 
-        console.log('current nbr colors: ' + nbrColorElement)
         if (nbrColorElement.value < 3) {
             $('#color3').addClass('isHidden');
             $('#color3label').addClass('isHidden');
